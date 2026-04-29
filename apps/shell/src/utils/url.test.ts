@@ -4,12 +4,20 @@ import { normalizeProjectUrl } from "./url";
 
 describe("normalizeProjectUrl", () => {
   it("accepts http and https urls", () => {
-    expect(normalizeProjectUrl("http://localhost:4300")).toContain("http://localhost:4300");
-    expect(normalizeProjectUrl("https://example.com")).toContain("https://example.com");
+    const allowlist = new Set(["http://localhost:4300", "https://example.com"]);
+    expect(normalizeProjectUrl("http://localhost:4300", allowlist)).toContain(
+      "http://localhost:4300"
+    );
+    expect(normalizeProjectUrl("https://example.com", allowlist)).toContain("https://example.com");
   });
 
   it("rejects javascript pseudo urls", () => {
     expect(normalizeProjectUrl("javascript:alert(1)")).toBeNull();
+  });
+
+  it("rejects origins outside the allowlist", () => {
+    const allowlist = new Set(["https://example.com"]);
+    expect(normalizeProjectUrl("https://malicious.example", allowlist)).toBeNull();
   });
 
   it("rejects malformed values", () => {

@@ -1,6 +1,6 @@
-# AstraMesh Command Deck Monorepo
+# AstraMesh
 
-AstraMesh Command Deck is a unified control-center shell that brings all requested projects into one navigable UI, similar to the partner-portal host pattern.
+AstraMesh unifies your AI app fleet into one secure operations shell.
 
 ## What this project gives you
 
@@ -29,7 +29,7 @@ Integration details are documented in `docs/INTEGRATION-MAP.md`.
 ## Monorepo layout
 
 ```text
-astramesh-command-deck/
+astramesh/
   apps/
     shell/
       src/
@@ -39,7 +39,7 @@ astramesh-command-deck/
 
 ## Run locally
 
-From `c:\github_repos\astramesh-command-deck`:
+From `c:\github_repos\astramesh`:
 
 ```powershell
 npm install
@@ -69,6 +69,8 @@ This repository now includes deploy automation in `.github/workflows/pages.yml`.
 1. Push this repo to GitHub.
 2. Open repository settings and set Pages source to GitHub Actions.
 3. Add repository variables (optional but recommended) for production module URLs:
+  - `ALLOWED_IFRAME_ORIGINS`
+  - `DEFAULT_USER_ROLE`
   - `DRIFT_WATCH_URL`
   - `LLM_JUDGE_URL`
   - `RAGBENCH_URL`
@@ -88,7 +90,8 @@ CI checks run from `.github/workflows/ci.yml` for lint, test, and build gates.
 ## Security and accessibility defaults
 
 - URL sanitization blocks unsafe iframe protocols.
-- Shell only renders `http`/`https` integrations.
+- Shell only renders `http`/`https` integrations from allowlisted origins.
+- Role-based module visibility limits what each operator persona can open.
 - Keyboard-first navigation and visible focus styles.
 - Skip link provided for screen-reader and keyboard users.
 

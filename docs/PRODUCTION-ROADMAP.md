@@ -1,8 +1,8 @@
-# Production Roadmap
+# AstraMesh Production Roadmap
 
 ## Phase 1: Public Shell Baseline
 
-- Deploy AstraMesh Command Deck shell to GitHub Pages.
+- Deploy AstraMesh shell to GitHub Pages.
 - Configure all available module URLs as repository variables.
 - Add status badge section in README.
 

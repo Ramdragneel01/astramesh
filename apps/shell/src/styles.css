@@ -94,7 +94,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  max-width: 340px;
+  max-width: 420px;
 }
 
 .header-stats span {
@@ -103,6 +103,30 @@ body {
   padding: 8px 12px;
   font-size: 0.84rem;
   background: rgb(255 255 255 / 70%);
+}
+
+.role-picker {
+  display: grid;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.role-picker select {
+  border: 1px solid #aac6ba;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 600;
+  padding: 8px 10px;
+}
+
+.role-picker select:focus-visible {
+  outline: 2px solid #4fa396;
+  outline-offset: 1px;
 }
 
 .shell-body {
@@ -223,6 +247,11 @@ body {
 .status-note {
   color: #315f5b;
   font-size: 0.9rem;
+}
+
+.module-roles {
+  font-size: 0.78rem;
+  color: #49636f;
 }
 
 .card-actions a {

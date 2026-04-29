@@ -32,6 +32,10 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
   const [health, setHealth] = useState<HealthState>("checking");
 
   const safeUrl = useMemo(() => normalizeProjectUrl(project.url), [project.url]);
+  const safeHealthUrl = useMemo(
+    () => (project.healthUrl ? normalizeProjectUrl(project.healthUrl) : null),
+    [project.healthUrl]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -47,7 +51,14 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
         return;
       }
 
-      const isOnline = await checkReachability(project.healthUrl);
+      if (!safeHealthUrl) {
+        if (isMounted) {
+          setHealth("offline");
+        }
+        return;
+      }
+
+      const isOnline = await checkReachability(safeHealthUrl);
       if (isMounted) {
         setHealth(isOnline ? "online" : "offline");
       }
@@ -62,13 +73,16 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
       isMounted = false;
       window.clearInterval(timer);
     };
-  }, [project.healthUrl]);
+  }, [project.healthUrl, safeHealthUrl]);
 
   if (!safeUrl) {
     return (
       <section className="workspace-panel" aria-live="polite">
         <h2>{project.name}</h2>
-        <p>Blocked unsafe URL configuration for this module.</p>
+        <p>
+          Blocked by production URL policy. Check module URL and
+          `VITE_ALLOWED_IFRAME_ORIGINS` configuration.
+        </p>
       </section>
     );
   }

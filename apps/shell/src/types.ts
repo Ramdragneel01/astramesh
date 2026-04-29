@@ -4,6 +4,8 @@ export type IntegrationKind = "frontend" | "storybook" | "documentation";
 
 export type LaunchMode = "iframe" | "external";
 
+export type UserRole = "admin" | "platform-ops" | "ml-ops" | "research" | "viewer";
+
 export interface ProjectIntegration {
   id: string;
   name: string;
@@ -16,4 +18,5 @@ export interface ProjectIntegration {
   startCommand: string;
   repoPath: string;
   statusNote: string;
+  allowedRoles: UserRole[];
 }

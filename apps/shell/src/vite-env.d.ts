@@ -3,6 +3,8 @@
 
 interface ImportMetaEnv {
   readonly VITE_BASE_PATH?: string;
+  readonly VITE_ALLOWED_IFRAME_ORIGINS?: string;
+  readonly VITE_DEFAULT_USER_ROLE?: string;
   readonly VITE_DRIFT_WATCH_URL?: string;
   readonly VITE_LLM_JUDGE_URL?: string;
   readonly VITE_RAGBENCH_URL?: string;

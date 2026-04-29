@@ -1,4 +1,4 @@
-# Deployment Guide
+# AstraMesh Deployment Guide
 
 ## GitHub Pages (Shell)
 
@@ -11,6 +11,8 @@
 ## Recommended production variables
 
 - `DRIFT_WATCH_URL`
+- `ALLOWED_IFRAME_ORIGINS`
+- `DEFAULT_USER_ROLE`
 - `LLM_JUDGE_URL`
 - `RAGBENCH_URL`
 - `PROMPT_OPS_URL`

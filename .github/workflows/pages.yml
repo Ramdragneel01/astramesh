@@ -34,6 +34,8 @@ jobs:
       - name: Build shell for GitHub Pages
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_ALLOWED_IFRAME_ORIGINS: ${{ vars.ALLOWED_IFRAME_ORIGINS }}
+          VITE_DEFAULT_USER_ROLE: ${{ vars.DEFAULT_USER_ROLE }}
           VITE_DRIFT_WATCH_URL: ${{ vars.DRIFT_WATCH_URL }}
           VITE_LLM_JUDGE_URL: ${{ vars.LLM_JUDGE_URL }}
           VITE_RAGBENCH_URL: ${{ vars.RAGBENCH_URL }}

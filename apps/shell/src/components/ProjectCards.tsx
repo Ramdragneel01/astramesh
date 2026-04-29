@@ -10,6 +10,18 @@ interface ProjectCardsProps {
  * Dashboard cards help operators discover all integrated modules and jump into any workspace.
  */
 export function ProjectCards({ projects }: ProjectCardsProps) {
+  if (projects.length === 0) {
+    return (
+      <section aria-labelledby="dashboard-title">
+        <h2 id="dashboard-title">Integrated Modules</h2>
+        <p className="panel-copy">
+          No modules are assigned to the selected role. Change access role in the header to view
+          other workspaces.
+        </p>
+      </section>
+    );
+  }
+
   return (
     <section aria-labelledby="dashboard-title">
       <h2 id="dashboard-title">Integrated Modules</h2>
@@ -25,6 +37,7 @@ export function ProjectCards({ projects }: ProjectCardsProps) {
             <h3>{project.name}</h3>
             <p>{project.tagline}</p>
             <p className="status-note">{project.statusNote}</p>
+            <p className="module-roles">Roles: {project.allowedRoles.join(", ")}</p>
             <div className="card-actions">
               <Link to={`/workspace/${project.id}`}>Open workspace</Link>
             </div>
