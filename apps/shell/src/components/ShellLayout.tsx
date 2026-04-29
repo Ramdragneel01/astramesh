@@ -47,7 +47,7 @@ export function ShellLayout({
         <div>
           <p className="eyebrow">AstraMesh Federation Host</p>
           <h1>AstraMesh</h1>
-          <p className="header-subtitle">One secure mesh for operating your AI app fleet.</p>
+          <p className="header-subtitle">One secure mesh for your AI app fleet.</p>
         </div>
         <div className="header-stats" aria-label="Project totals">
           <label className="role-picker" htmlFor="role-picker">

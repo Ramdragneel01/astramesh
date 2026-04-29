@@ -1,6 +1,6 @@
 # AstraMesh
 
-AstraMesh unifies your AI app fleet into one secure operations shell.
+One secure mesh for your AI app fleet.
 
 ## What this project gives you
 
