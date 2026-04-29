@@ -2,11 +2,20 @@
 
 ## GitHub Pages (Shell)
 
-1. Push this repository to GitHub.
+Deployment is currently paused by design.
+
+`Deploy Pages (Paused)` only runs when:
+
+1. Workflow is manually triggered.
+2. Repository variable `ENABLE_ASTRAMESH_DEPLOY` is `true`.
+
+When backend and module endpoints are ready:
+
+1. Set `ENABLE_ASTRAMESH_DEPLOY=true`.
 2. In repository settings, enable Pages and select GitHub Actions as the source.
 3. Ensure branch protection and required checks include `CI / quality-gates`.
-4. Set repository variables for production integration URLs when available.
-5. Merge changes to `main` and watch `.github/workflows/pages.yml` deploy the shell.
+4. Set repository variables for production integration URLs.
+5. Trigger `Deploy Pages (Paused)` manually.
 
 ## Recommended production variables
 

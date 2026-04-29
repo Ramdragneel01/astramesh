@@ -7,19 +7,23 @@ interface WorkspaceFrameProps {
   project: ProjectIntegration;
 }
 
-type HealthState = "checking" | "online" | "offline";
+type HealthState = "checking" | "online" | "offline" | "unknown";
 
 /**
- * Tests whether a project endpoint is reachable without relying on permissive CORS.
+ * Tests project endpoint health and returns unknown if browser policy blocks verification.
  */
-async function checkReachability(targetUrl: string): Promise<boolean> {
+async function checkReachability(targetUrl: string): Promise<HealthState> {
   const timeoutController = new AbortController();
   const timer = window.setTimeout(() => timeoutController.abort(), 3500);
   try {
-    await fetch(targetUrl, { method: "GET", mode: "no-cors", signal: timeoutController.signal });
-    return true;
+    const response = await fetch(targetUrl, {
+      method: "GET",
+      cache: "no-store",
+      signal: timeoutController.signal
+    });
+    return response.ok ? "online" : "offline";
   } catch {
-    return false;
+    return "unknown";
   } finally {
     window.clearTimeout(timer);
   }
@@ -46,7 +50,7 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
     async function refreshHealth() {
       if (!project.healthUrl) {
         if (isMounted) {
-          setHealth("online");
+          setHealth("unknown");
         }
         return;
       }
@@ -58,9 +62,9 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
         return;
       }
 
-      const isOnline = await checkReachability(safeHealthUrl);
+      const nextHealth = await checkReachability(safeHealthUrl);
       if (isMounted) {
-        setHealth(isOnline ? "online" : "offline");
+        setHealth(nextHealth);
       }
     }
 
@@ -133,7 +137,14 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
 
       {health === "offline" ? (
         <p className="offline-hint" role="status">
-          Module appears offline. Start it with the command shown above, then refresh this route.
+          Module appears offline. The backend or frontend service may be down. Start it with the
+          command shown above, then refresh this route.
+        </p>
+      ) : null}
+
+      {health === "unknown" ? (
+        <p className="offline-hint" role="status">
+          Health could not be verified from the browser (CORS policy or backend not exposed).
         </p>
       ) : null}
     </section>

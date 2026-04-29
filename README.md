@@ -64,11 +64,18 @@ npm run dev:all
 
 ## GitHub Pages deployment
 
-This repository now includes deploy automation in `.github/workflows/pages.yml`.
+Deployment is intentionally paused until backend and module hosting are production-ready.
 
-1. Push this repo to GitHub.
+Pages workflow exists in `.github/workflows/pages.yml`, but it runs only when both are true:
+
+1. You manually trigger `workflow_dispatch`.
+2. Repository variable `ENABLE_ASTRAMESH_DEPLOY` is set to `true`.
+
+When ready to re-enable deployment:
+
+1. Set repository variable `ENABLE_ASTRAMESH_DEPLOY=true`.
 2. Open repository settings and set Pages source to GitHub Actions.
-3. Add repository variables (optional but recommended) for production module URLs:
+3. Add repository variables for production module URLs:
   - `ALLOWED_IFRAME_ORIGINS`
   - `DEFAULT_USER_ROLE`
   - `DRIFT_WATCH_URL`
@@ -83,7 +90,7 @@ This repository now includes deploy automation in `.github/workflows/pages.yml`.
   - `AGENTIC_RESEARCH_ASSISTANT_URL`
   - `AGENTIC_UI_URL`
   - `CONTEXT_WATCHDOG_URL`
-4. Merge to `main` and GitHub Actions will build and publish the shell.
+4. Trigger `Deploy Pages (Paused)` manually from Actions.
 
 CI checks run from `.github/workflows/ci.yml` for lint, test, and build gates.
 

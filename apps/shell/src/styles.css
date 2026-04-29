@@ -366,6 +366,11 @@ body {
   background: #fde7e8;
 }
 
+.health-unknown {
+  color: #44586b;
+  background: #e8eef3;
+}
+
 .offline-hint {
   border-left: 4px solid var(--warning);
   padding: 10px 12px;
