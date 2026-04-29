@@ -2,10 +2,13 @@
 
 One secure mesh for your AI app fleet.
 
+AstraMesh is evolving into an AI runtime control plane, not just a frontend launcher.
+
 ## What this project gives you
 
 - Single shell UI to launch and use all integrated projects.
 - Monorepo structure with `apps/shell` as the host application.
+- Control-plane backend in `apps/api` for module contracts and health intelligence.
 - Route-per-project workspace view with status checks and startup commands.
 - One command to run shell-only, a core stack, or the full extended stack.
 
@@ -31,6 +34,7 @@ Integration details are documented in `docs/INTEGRATION-MAP.md`.
 ```text
 astramesh/
   apps/
+    api/
     shell/
       src/
   docs/
@@ -50,6 +54,20 @@ Shell URL:
 
 - `http://localhost:4300`
 
+Control-plane API URL:
+
+- `http://localhost:4310`
+
+To run shell + control plane together:
+
+```powershell
+npm run dev:mesh
+```
+
+If workspace health shows `unknown`, ensure `npm run dev:mesh` is running. The shell now uses
+control-plane probe API (`/api/health/probe`) to avoid browser CORS failures when checking
+module health URLs.
+
 To run shell + core 8 app stack:
 
 ```powershell
@@ -61,6 +79,18 @@ To run shell + full extended stack (adds tracer, research assistant, agentic-ui 
 ```powershell
 npm run dev:all
 ```
+
+## Control-plane API (Phase 1)
+
+The backend service in `apps/api` provides:
+
+- `/health` and `/ready` runtime checks.
+- Module contract registry (`POST /api/modules/register`).
+- Telemetry ingestion (`POST /api/modules/:moduleId/telemetry`).
+- Scored module status view (`GET /api/modules/status`).
+- Service config introspection (`GET /api/config`).
+
+See `docs/CONTROL-PLANE.md` for endpoint details and payload examples.
 
 ## GitHub Pages deployment
 
@@ -99,6 +129,7 @@ CI checks run from `.github/workflows/ci.yml` for lint, test, and build gates.
 - URL sanitization blocks unsafe iframe protocols.
 - Shell only renders `http`/`https` integrations from allowlisted origins.
 - Role-based module visibility limits what each operator persona can open.
+- Control-plane API has CORS allowlisting, request IDs, and rate limiting.
 - Keyboard-first navigation and visible focus styles.
 - Skip link provided for screen-reader and keyboard users.
 

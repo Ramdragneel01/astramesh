@@ -26,6 +26,14 @@ export default defineConfig({
   base: resolveBasePath(),
   server: {
     port: 4300,
-    host: true
+    host: true,
+    proxy: {
+      "/control-plane": {
+        target: process.env.VITE_CONTROL_PLANE_PROXY_TARGET ?? "http://localhost:4310",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/control-plane/, "")
+      }
+    }
   }
 });

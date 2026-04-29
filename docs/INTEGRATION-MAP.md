@@ -4,6 +4,7 @@ This map defines how each repository is represented in the shell.
 
 | Project | Type | Shell Route | Default URL | Start Command |
 |---|---|---|---|---|
+| astramesh-control-plane | backend | n/a | `http://localhost:4310` | `npm --workspace @astramesh/api run dev` |
 | drift-watch | frontend | `/workspace/drift-watch` | `http://localhost:5401` | `npm --prefix ..\\drift-watch\\frontend run dev -- --port 5401 --host` |
 | llm-judge | frontend | `/workspace/llm-judge` | `http://localhost:5402` | `npm --prefix ..\\llm-judge\\frontend run dev -- --port 5402 --host` |
 | ragbench | frontend | `/workspace/ragbench` | `http://localhost:5403` | `npm --prefix ..\\ragbench\\frontend run dev -- --port 5403 --host` |
