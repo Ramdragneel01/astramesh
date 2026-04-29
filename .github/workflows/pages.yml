@@ -1,0 +1,65 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shell for GitHub Pages
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_DRIFT_WATCH_URL: ${{ vars.DRIFT_WATCH_URL }}
+          VITE_LLM_JUDGE_URL: ${{ vars.LLM_JUDGE_URL }}
+          VITE_RAGBENCH_URL: ${{ vars.RAGBENCH_URL }}
+          VITE_PROMPT_OPS_URL: ${{ vars.PROMPT_OPS_URL }}
+          VITE_NEURALSCOPE_URL: ${{ vars.NEURALSCOPE_URL }}
+          VITE_CONFIG_FORGE_URL: ${{ vars.CONFIG_FORGE_URL }}
+          VITE_INTERVIEW_OS_URL: ${{ vars.INTERVIEW_OS_URL }}
+          VITE_MLOPS_SENTINEL_URL: ${{ vars.MLOPS_SENTINEL_URL }}
+          VITE_AGENT_TRACER_URL: ${{ vars.AGENT_TRACER_URL }}
+          VITE_AGENTIC_RESEARCH_ASSISTANT_URL: ${{ vars.AGENTIC_RESEARCH_ASSISTANT_URL }}
+          VITE_AGENTIC_UI_URL: ${{ vars.AGENTIC_UI_URL }}
+          VITE_CONTEXT_WATCHDOG_URL: ${{ vars.CONTEXT_WATCHDOG_URL }}
+        run: npm run build:pages
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/shell/dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

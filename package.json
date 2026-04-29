@@ -1,0 +1,23 @@
+{
+  "name": "astramesh-command-deck",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AstraMesh Command Deck monorepo for operating many AI/ML projects in one shell.",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:shell",
+    "dev:shell": "npm --workspace @astramesh-command-deck/shell run dev",
+    "build": "npm --workspace @astramesh-command-deck/shell run build",
+    "build:pages": "npm --workspace @astramesh-command-deck/shell run build",
+    "lint": "npm --workspace @astramesh-command-deck/shell run lint",
+    "test": "npm --workspace @astramesh-command-deck/shell run test",
+    "dev:stack": "concurrently -k -n shell,drift,llm,rag,prompt,neural,forge,interview,mlops -c blue,green,magenta,cyan,yellow,red,white,gray,orange \"npm run dev:shell\" \"npm --prefix ..\\drift-watch\\frontend run dev -- --port 5401 --host\" \"npm --prefix ..\\llm-judge\\frontend run dev -- --port 5402 --host\" \"npm --prefix ..\\ragbench\\frontend run dev -- --port 5403 --host\" \"npm --prefix ..\\prompt-ops\\frontend run dev -- --port 5404 --host\" \"npm --prefix ..\\neuralscope\\frontend run dev -- --port 5405 --host\" \"npm --prefix ..\\config-forge\\frontend run dev -- --port 5406 --host\" \"npm --prefix ..\\interview-os\\frontend run dev -- --port 5407 --host\" \"npm --prefix ..\\mlops-sentinel\\frontend run dev -- --port 5408 --host\"",
+    "dev:extended": "concurrently -k -n shell,drift,llm,rag,prompt,neural,forge,interview,mlops,tracer,research,agenticui -c blue,green,magenta,cyan,yellow,red,white,gray,orange,purple,teal,greenBright \"npm run dev:shell\" \"npm --prefix ..\\drift-watch\\frontend run dev -- --port 5401 --host\" \"npm --prefix ..\\llm-judge\\frontend run dev -- --port 5402 --host\" \"npm --prefix ..\\ragbench\\frontend run dev -- --port 5403 --host\" \"npm --prefix ..\\prompt-ops\\frontend run dev -- --port 5404 --host\" \"npm --prefix ..\\neuralscope\\frontend run dev -- --port 5405 --host\" \"npm --prefix ..\\config-forge\\frontend run dev -- --port 5406 --host\" \"npm --prefix ..\\interview-os\\frontend run dev -- --port 5407 --host\" \"npm --prefix ..\\mlops-sentinel\\frontend run dev -- --port 5408 --host\" \"npm --prefix ..\\agent-tracer\\frontend run dev -- --port 5409 --host\" \"npm --prefix ..\\agentic-research-assistant\\frontend run dev -- --port 5410 --host\" \"npm --prefix ..\\agentic-ui run storybook -- --port 6006\"",
+    "dev:all": "npm run dev:extended"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
