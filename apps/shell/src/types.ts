@@ -4,6 +4,8 @@ export type IntegrationKind = "frontend" | "storybook" | "documentation";
 
 export type LaunchMode = "iframe" | "external";
 
+export type ThemeMode = "light" | "dark";
+
 export type UserRole = "admin" | "platform-ops" | "ml-ops" | "research" | "viewer";
 
 export interface ProjectIntegration {
