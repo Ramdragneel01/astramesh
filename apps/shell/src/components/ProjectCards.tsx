@@ -33,11 +33,18 @@ export function ProjectCards({ projects }: ProjectCardsProps) {
       <div className="card-grid">
         {projects.map((project) => (
           <article key={project.id} className="module-card" aria-label={`${project.name} card`}>
-            <p className="module-kind">{project.kind}</p>
+            <div className="module-card-top">
+              <p className="module-kind">{project.kind}</p>
+              <span className="module-category">{project.category}</span>
+            </div>
             <h3>{project.name}</h3>
             <p>{project.tagline}</p>
             <p className="status-note">{project.statusNote}</p>
             <p className="module-roles">Roles: {project.allowedRoles.join(", ")}</p>
+            <div className="module-flags" aria-label="module metadata">
+              <span>{project.launchMode === "iframe" ? "Embedded" : "External"}</span>
+              <span>{project.healthUrl ? "Health configured" : "No health endpoint"}</span>
+            </div>
             <div className="card-actions">
               <Link to={`/workspace/${project.id}`}>Open workspace</Link>
             </div>
