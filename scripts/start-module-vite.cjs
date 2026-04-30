@@ -29,7 +29,7 @@ if (!/^\d+$/.test(port)) {
   process.exit(1);
 }
 
-const child = spawn(`npm run dev -- --port ${port} --host`, [], {
+const child = spawn(`npm run dev -- --port ${port} --host --strictPort`, [], {
   cwd: moduleCwd,
   stdio: "inherit",
   shell: true

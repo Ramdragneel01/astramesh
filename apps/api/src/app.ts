@@ -4,14 +4,26 @@ import express, { type NextFunction, type Request, type Response } from "express
 import rateLimit from "express-rate-limit";
 import { randomUUID } from "node:crypto";
 import { resolveControlPlaneConfig, type ControlPlaneConfig } from "./config.js";
+import {
+  executeOrchestrationRun,
+  createOrchestrationRun,
+  OrchestrationRunStore
+} from "./execution.js";
+import { buildOrchestrationPlan } from "./orchestration.js";
 import { ModuleRegistry } from "./registry.js";
 import { evaluateModuleStatus } from "./scoring.js";
 import { DEFAULT_MODULE_CONTRACTS } from "./seeds.js";
-import { parseModuleContractPayload, parseTelemetryPayload } from "./validation.js";
+import {
+  parseOrchestrationExecutionPayload,
+  parseModuleContractPayload,
+  parseOrchestrationPlanPayload,
+  parseTelemetryPayload
+} from "./validation.js";
 
 export interface ControlPlaneAppContext {
   app: express.Express;
   registry: ModuleRegistry;
+  runStore: OrchestrationRunStore;
   config: ControlPlaneConfig;
 }
 
@@ -132,6 +144,7 @@ export function createControlPlaneApp(
 ): ControlPlaneAppContext {
   const config = resolveControlPlaneConfig(overrides);
   const registry = new ModuleRegistry();
+  const runStore = new OrchestrationRunStore();
 
   if (config.seedDefaults) {
     for (const moduleContract of DEFAULT_MODULE_CONTRACTS) {
@@ -270,6 +283,131 @@ export function createControlPlaneApp(
     });
   });
 
+  app.post("/api/orchestration/plan", (request, response) => {
+    const parsedRequest = parseOrchestrationPlanPayload(request.body);
+    if (!parsedRequest.ok) {
+      response.status(400).json({
+        error: parsedRequest.error,
+        requestId: request.requestId
+      });
+      return;
+    }
+
+    const plan = buildOrchestrationPlan(registry, parsedRequest.value);
+    response.json({
+      plan,
+      generatedAt: new Date().toISOString()
+    });
+  });
+
+  app.post("/api/orchestration/execute", (request, response) => {
+    const parsedExecutionRequest = parseOrchestrationExecutionPayload(request.body);
+    if (!parsedExecutionRequest.ok) {
+      response.status(400).json({
+        error: parsedExecutionRequest.error,
+        requestId: request.requestId
+      });
+      return;
+    }
+
+    const plan = buildOrchestrationPlan(registry, parsedExecutionRequest.value);
+    const runRecord = createOrchestrationRun(registry, plan, parsedExecutionRequest.value);
+    const savedRun = runStore.create(runRecord);
+
+    if (savedRun.status === "queued") {
+      void executeOrchestrationRun(runStore, savedRun.id, registry, config.probeTimeoutMs);
+      response.status(202).json({ run: savedRun });
+      return;
+    }
+
+    response.json({ run: savedRun });
+  });
+
+  app.get("/api/orchestration/runs", (request, response) => {
+    const rawLimit = typeof request.query.limit === "string" ? request.query.limit : "";
+    const parsedLimit = Number.parseInt(rawLimit, 10);
+
+    const limit = Number.isFinite(parsedLimit) && parsedLimit > 0
+      ? Math.min(parsedLimit, 100)
+      : 25;
+
+    const runs = runStore.list(limit);
+    response.json({
+      runs,
+      total: runs.length
+    });
+  });
+
+  app.get("/api/orchestration/runs/:runId", (request, response) => {
+    const runRecord = runStore.get(request.params.runId);
+    if (!runRecord) {
+      response.status(404).json({
+        error: `Unknown orchestration run id: ${request.params.runId}`,
+        requestId: request.requestId
+      });
+      return;
+    }
+
+    response.json({ run: runRecord });
+  });
+
+  app.post("/api/orchestration/runs/:runId/cancel", (request, response) => {
+    const cancellation = runStore.requestCancel(request.params.runId);
+    if (!cancellation) {
+      response.status(404).json({
+        error: `Unknown orchestration run id: ${request.params.runId}`,
+        requestId: request.requestId
+      });
+      return;
+    }
+
+    const statusCode = cancellation.accepted && cancellation.run.status === "running" ? 202 : 200;
+
+    response.status(statusCode).json({
+      run: cancellation.run,
+      accepted: cancellation.accepted
+    });
+  });
+
+  app.post("/api/orchestration/runs/:runId/retry", (request, response) => {
+    const sourceRun = runStore.get(request.params.runId);
+    if (!sourceRun) {
+      response.status(404).json({
+        error: `Unknown orchestration run id: ${request.params.runId}`,
+        requestId: request.requestId
+      });
+      return;
+    }
+
+    if (sourceRun.status === "queued" || sourceRun.status === "running") {
+      response.status(409).json({
+        error: "Cannot retry an orchestration run that is still active.",
+        requestId: request.requestId
+      });
+      return;
+    }
+
+    const retryPlan = buildOrchestrationPlan(registry, sourceRun.request);
+    const retryRunRecord = createOrchestrationRun(
+      registry,
+      retryPlan,
+      sourceRun.request,
+      {
+        retriedFromRunId: sourceRun.id
+      }
+    );
+
+    const savedRetryRun = runStore.create(retryRunRecord);
+
+    if (savedRetryRun.status === "queued") {
+      void executeOrchestrationRun(runStore, savedRetryRun.id, registry, config.probeTimeoutMs);
+      response.status(202).json({ run: savedRetryRun });
+      return;
+    }
+
+    response.json({ run: savedRetryRun });
+  });
+
   app.get("/api/health/probe", async (request, response) => {
     const rawTargetUrl = typeof request.query.url === "string" ? request.query.url.trim() : "";
     if (!rawTargetUrl) {
@@ -356,6 +494,7 @@ export function createControlPlaneApp(
   return {
     app,
     registry,
+    runStore,
     config
   };
 }

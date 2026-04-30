@@ -8,9 +8,12 @@
   ],
   "scripts": {
     "dev": "npm run dev:mesh",
+    "check:ports:mesh": "node scripts/check-required-ports.cjs 4300 4310",
+    "check:ports:stack": "node scripts/check-required-ports.cjs 4300 4310 5401 5402 5403 5404 5405 5406 5407 5408",
+    "check:ports:extended": "node scripts/check-required-ports.cjs 4300 4310 5401 5402 5403 5404 5405 5406 5407 5408 5409 5410 6006",
     "dev:shell": "npm --workspace @astramesh/shell run dev",
     "dev:api": "npm --workspace @astramesh/api run dev",
-    "dev:mesh": "concurrently -k -n shell,api -c blue,green \"npm run dev:shell\" \"npm run dev:api\"",
+    "dev:mesh": "npm run check:ports:mesh && concurrently -k -n shell,api -c blue,green \"npm run dev:shell\" \"npm run dev:api\"",
     "build": "npm run build:shell && npm run build:api",
     "build:shell": "npm --workspace @astramesh/shell run build",
     "build:api": "npm --workspace @astramesh/api run build",
@@ -21,8 +24,8 @@
     "test": "npm run test:shell && npm run test:api",
     "test:shell": "npm --workspace @astramesh/shell run test",
     "test:api": "npm --workspace @astramesh/api run test",
-    "dev:stack": "concurrently -k -n shell,api,drift,llm,rag,prompt,neural,forge,interview,mlops -c blue,greenBright,green,magenta,cyan,yellow,red,white,gray,orange \"npm run dev:shell\" \"npm run dev:api\" \"node scripts/start-module-vite.cjs ..\\drift-watch\\frontend 5401\" \"node scripts/start-module-vite.cjs ..\\llm-judge\\frontend 5402\" \"node scripts/start-module-vite.cjs ..\\ragbench\\frontend 5403\" \"node scripts/start-module-vite.cjs ..\\prompt-ops\\frontend 5404\" \"node scripts/start-module-vite.cjs ..\\neuralscope\\frontend 5405\" \"node scripts/start-module-vite.cjs ..\\config-forge\\frontend 5406\" \"node scripts/start-module-vite.cjs ..\\interview-os\\frontend 5407\" \"node scripts/start-module-vite.cjs ..\\mlops-sentinel\\frontend 5408\"",
-    "dev:extended": "concurrently -k -n shell,api,drift,llm,rag,prompt,neural,forge,interview,mlops,tracer,research,agenticui -c blue,greenBright,green,magenta,cyan,yellow,red,white,gray,orange,purple,teal,whiteBright \"npm run dev:shell\" \"npm run dev:api\" \"node scripts/start-module-vite.cjs ..\\drift-watch\\frontend 5401\" \"node scripts/start-module-vite.cjs ..\\llm-judge\\frontend 5402\" \"node scripts/start-module-vite.cjs ..\\ragbench\\frontend 5403\" \"node scripts/start-module-vite.cjs ..\\prompt-ops\\frontend 5404\" \"node scripts/start-module-vite.cjs ..\\neuralscope\\frontend 5405\" \"node scripts/start-module-vite.cjs ..\\config-forge\\frontend 5406\" \"node scripts/start-module-vite.cjs ..\\interview-os\\frontend 5407\" \"node scripts/start-module-vite.cjs ..\\mlops-sentinel\\frontend 5408\" \"node scripts/start-module-vite.cjs ..\\agent-tracer\\frontend 5409\" \"node scripts/start-module-vite.cjs ..\\agentic-research-assistant\\frontend 5410\" \"node scripts/start-storybook.cjs ..\\agentic-ui 6006\"",
+    "dev:stack": "npm run check:ports:stack && concurrently -k -n shell,api,drift,llm,rag,prompt,neural,forge,interview,mlops -c blue,greenBright,green,magenta,cyan,yellow,red,white,gray,orange \"npm run dev:shell\" \"npm run dev:api\" \"node scripts/start-module-vite.cjs ..\\drift-watch\\frontend 5401\" \"node scripts/start-module-vite.cjs ..\\llm-judge\\frontend 5402\" \"node scripts/start-module-vite.cjs ..\\ragbench\\frontend 5403\" \"node scripts/start-module-vite.cjs ..\\prompt-ops\\frontend 5404\" \"node scripts/start-module-vite.cjs ..\\neuralscope\\frontend 5405\" \"node scripts/start-module-vite.cjs ..\\config-forge\\frontend 5406\" \"node scripts/start-module-vite.cjs ..\\interview-os\\frontend 5407\" \"node scripts/start-module-vite.cjs ..\\mlops-sentinel\\frontend 5408\"",
+    "dev:extended": "npm run check:ports:extended && concurrently -k -n shell,api,drift,llm,rag,prompt,neural,forge,interview,mlops,tracer,research,agenticui -c blue,greenBright,green,magenta,cyan,yellow,red,white,gray,orange,purple,teal,whiteBright \"npm run dev:shell\" \"npm run dev:api\" \"node scripts/start-module-vite.cjs ..\\drift-watch\\frontend 5401\" \"node scripts/start-module-vite.cjs ..\\llm-judge\\frontend 5402\" \"node scripts/start-module-vite.cjs ..\\ragbench\\frontend 5403\" \"node scripts/start-module-vite.cjs ..\\prompt-ops\\frontend 5404\" \"node scripts/start-module-vite.cjs ..\\neuralscope\\frontend 5405\" \"node scripts/start-module-vite.cjs ..\\config-forge\\frontend 5406\" \"node scripts/start-module-vite.cjs ..\\interview-os\\frontend 5407\" \"node scripts/start-module-vite.cjs ..\\mlops-sentinel\\frontend 5408\" \"node scripts/start-module-vite.cjs ..\\agent-tracer\\frontend 5409\" \"node scripts/start-module-vite.cjs ..\\agentic-research-assistant\\frontend 5410\" \"node scripts/start-storybook.cjs ..\\agentic-ui 6006\"",
     "dev:all": "npm run dev:extended"
   },
   "devDependencies": {

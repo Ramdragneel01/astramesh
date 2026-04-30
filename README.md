@@ -114,6 +114,9 @@ To run shell + control plane together:
 npm run dev:mesh
 ```
 
+`dev:mesh`, `dev:stack`, and `dev:all` now run a required port preflight check and fail fast
+when expected ports are occupied. This prevents silent port drift that can break shell module URLs.
+
 If workspace health shows `unknown`, ensure `npm run dev:mesh` is running. The shell now uses
 control-plane probe API (`/api/health/probe`) to avoid browser CORS failures when checking
 module health URLs.
@@ -138,6 +141,10 @@ The backend service in `apps/api` provides:
 - Module contract registry (`POST /api/modules/register`).
 - Telemetry ingestion (`POST /api/modules/:moduleId/telemetry`).
 - Scored module status view (`GET /api/modules/status`).
+- Dependency-aware orchestration plans with policy gates (`POST /api/orchestration/plan`).
+- Stage-based orchestration execution with run tracking (`POST /api/orchestration/execute`).
+- Run status inspection APIs (`GET /api/orchestration/runs`, `GET /api/orchestration/runs/:runId`).
+- Operational lifecycle controls for cancel and retry (`POST /api/orchestration/runs/:runId/cancel`, `POST /api/orchestration/runs/:runId/retry`).
 - Service config introspection (`GET /api/config`).
 
 See `docs/CONTROL-PLANE.md` for endpoint details and payload examples.

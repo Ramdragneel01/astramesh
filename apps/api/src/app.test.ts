@@ -26,6 +26,57 @@ const baseModuleContract = {
   }
 };
 
+async function waitForRunCompletion(app: ReturnType<typeof createTestApp>, runId: string) {
+  const maxAttempts = 50;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const response = await request(app).get(`/api/orchestration/runs/${runId}`);
+    expect(response.status).toBe(200);
+
+    const status = response.body.run.status;
+    if (status === "succeeded" || status === "failed" || status === "blocked" || status === "cancelled") {
+      return response;
+    }
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20);
+    });
+  }
+
+  throw new Error(`Timed out waiting for run ${runId} to complete.`);
+}
+
+async function createDelayedHealthServer(delayMs = 500) {
+  const localService = createServer((_requestMessage, responseMessage) => {
+    setTimeout(() => {
+      responseMessage.statusCode = 200;
+      responseMessage.setHeader("content-type", "application/json");
+      responseMessage.end(JSON.stringify({ ok: true }));
+    }, delayMs);
+  });
+
+  const serverAddress = await new Promise<string>((resolve, reject) => {
+    localService.listen(0, "127.0.0.1", () => {
+      const boundAddress = localService.address();
+      if (!boundAddress || typeof boundAddress === "string") {
+        reject(new Error("Failed to resolve local server address."));
+        return;
+      }
+
+      resolve(`http://127.0.0.1:${boundAddress.port}/health`);
+    });
+  });
+
+  return {
+    healthUrl: serverAddress,
+    async close() {
+      await new Promise<void>((resolve) => {
+        localService.close(() => resolve());
+      });
+    }
+  };
+}
+
 describe("control plane app", () => {
   it("returns liveness and readiness metadata", async () => {
     const app = createTestApp();
@@ -169,5 +220,338 @@ describe("control plane app", () => {
         localService.close(() => resolve());
       });
     }
+  });
+
+  it("builds dependency-aware orchestration plans", async () => {
+    const app = createTestApp();
+
+    await request(app)
+      .post("/api/modules/register")
+      .send({
+        id: "config-forge",
+        name: "config-forge",
+        category: "platform",
+        baseUrl: "http://localhost:5406",
+        healthUrl: "http://localhost:5406/health",
+        ownerTeam: "platform-core",
+        dependencies: [],
+        slo: {
+          availabilityPct: 99.9,
+          latencyP95Ms: 250,
+          errorRatePct: 0.5
+        }
+      })
+      .expect(201);
+
+    await request(app)
+      .post("/api/modules/register")
+      .send({
+        ...baseModuleContract,
+        dependencies: ["config-forge"]
+      })
+      .expect(201);
+
+    await request(app)
+      .post("/api/modules/config-forge/telemetry")
+      .send({
+        availabilityPct: 99.95,
+        latencyP95Ms: 210,
+        errorRatePct: 0.1
+      })
+      .expect(200);
+
+    await request(app)
+      .post("/api/modules/model-hub/telemetry")
+      .send({
+        availabilityPct: 99.95,
+        latencyP95Ms: 220,
+        errorRatePct: 0.2
+      })
+      .expect(200);
+
+    const response = await request(app)
+      .post("/api/orchestration/plan")
+      .send({
+        targets: ["model-hub"]
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.plan.executionOrder).toEqual(["config-forge", "model-hub"]);
+    expect(response.body.plan.stages).toEqual([
+      {
+        stage: 1,
+        moduleIds: ["config-forge"]
+      },
+      {
+        stage: 2,
+        moduleIds: ["model-hub"]
+      }
+    ]);
+    expect(response.body.plan.canExecute).toBe(true);
+  });
+
+  it("blocks orchestration when policy requires telemetry", async () => {
+    const app = createTestApp();
+
+    await request(app)
+      .post("/api/modules/register")
+      .send(baseModuleContract)
+      .expect(201);
+
+    const response = await request(app)
+      .post("/api/orchestration/plan")
+      .send({
+        targets: ["model-hub"],
+        policy: {
+          requireTelemetry: true
+        }
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.plan.canExecute).toBe(false);
+    expect(response.body.plan.blockedModules[0].id).toBe("model-hub");
+    expect(response.body.plan.blockedModules[0].blockingReasons).toContain(
+      "Module has no telemetry and policy requires telemetry."
+    );
+  });
+
+  it("reports unknown targets in orchestration plan requests", async () => {
+    const app = createTestApp();
+
+    const response = await request(app)
+      .post("/api/orchestration/plan")
+      .send({
+        targets: ["missing-module"]
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.plan.unknownTargets).toEqual(["missing-module"]);
+    expect(response.body.plan.canExecute).toBe(false);
+  });
+
+  it("executes orchestration runs and exposes run lifecycle", async () => {
+    const app = createTestApp();
+
+    await request(app)
+      .post("/api/modules/register")
+      .send({
+        id: "config-forge",
+        name: "config-forge",
+        category: "platform",
+        baseUrl: "http://localhost:5406",
+        ownerTeam: "platform-core",
+        dependencies: [],
+        slo: {
+          availabilityPct: 99.9,
+          latencyP95Ms: 250,
+          errorRatePct: 0.5
+        }
+      })
+      .expect(201);
+
+    await request(app)
+      .post("/api/modules/register")
+      .send({
+        ...baseModuleContract,
+        healthUrl: undefined,
+        dependencies: ["config-forge"]
+      })
+      .expect(201);
+
+    await request(app)
+      .post("/api/modules/config-forge/telemetry")
+      .send({
+        availabilityPct: 99.95,
+        latencyP95Ms: 210,
+        errorRatePct: 0.1
+      })
+      .expect(200);
+
+    await request(app)
+      .post("/api/modules/model-hub/telemetry")
+      .send({
+        availabilityPct: 99.95,
+        latencyP95Ms: 220,
+        errorRatePct: 0.2
+      })
+      .expect(200);
+
+    const executeResponse = await request(app)
+      .post("/api/orchestration/execute")
+      .send({
+        targets: ["model-hub"]
+      });
+
+    expect(executeResponse.status).toBe(202);
+    const runId = executeResponse.body.run.id;
+    expect(typeof runId).toBe("string");
+
+    const completedRunResponse = await waitForRunCompletion(app, runId);
+    expect(completedRunResponse.body.run.status).toBe("succeeded");
+    expect(completedRunResponse.body.run.steps).toHaveLength(2);
+
+    const listedRunsResponse = await request(app)
+      .get("/api/orchestration/runs")
+      .query({ limit: "5" });
+
+    expect(listedRunsResponse.status).toBe(200);
+    expect(listedRunsResponse.body.runs.some((run: { id: string }) => run.id === runId)).toBe(true);
+  });
+
+  it("returns blocked execution runs when policy constraints fail", async () => {
+    const app = createTestApp();
+
+    await request(app)
+      .post("/api/modules/register")
+      .send(baseModuleContract)
+      .expect(201);
+
+    const response = await request(app)
+      .post("/api/orchestration/execute")
+      .send({
+        targets: ["model-hub"],
+        policy: {
+          requireTelemetry: true
+        }
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.run.status).toBe("blocked");
+  });
+
+  it("cancels active orchestration runs", async () => {
+    const app = createTestApp();
+    const delayedHealthServer = await createDelayedHealthServer();
+
+    try {
+      await request(app)
+        .post("/api/modules/register")
+        .send({
+          id: "slow-module",
+          name: "slow-module",
+          category: "platform",
+          baseUrl: "http://localhost:5450",
+          healthUrl: delayedHealthServer.healthUrl,
+          ownerTeam: "platform-core",
+          dependencies: [],
+          slo: {
+            availabilityPct: 99.9,
+            latencyP95Ms: 300,
+            errorRatePct: 0.5
+          }
+        })
+        .expect(201);
+
+      const executeResponse = await request(app)
+        .post("/api/orchestration/execute")
+        .send({
+          targets: ["slow-module"]
+        });
+
+      expect(executeResponse.status).toBe(202);
+      const runId = executeResponse.body.run.id;
+
+      const cancelResponse = await request(app)
+        .post(`/api/orchestration/runs/${runId}/cancel`);
+
+      expect(cancelResponse.status === 200 || cancelResponse.status === 202).toBe(true);
+      expect(cancelResponse.body.accepted).toBe(true);
+
+      const completedRunResponse = await waitForRunCompletion(app, runId);
+      expect(completedRunResponse.body.run.status).toBe("cancelled");
+    } finally {
+      await delayedHealthServer.close();
+    }
+  });
+
+  it("retries terminal orchestration runs with linkage metadata", async () => {
+    const app = createTestApp();
+
+    await request(app)
+      .post("/api/modules/register")
+      .send(baseModuleContract)
+      .expect(201);
+
+    const blockedRunResponse = await request(app)
+      .post("/api/orchestration/execute")
+      .send({
+        targets: ["model-hub"],
+        policy: {
+          requireTelemetry: true
+        }
+      });
+
+    expect(blockedRunResponse.status).toBe(200);
+    expect(blockedRunResponse.body.run.status).toBe("blocked");
+
+    const sourceRunId = blockedRunResponse.body.run.id;
+    const retryResponse = await request(app)
+      .post(`/api/orchestration/runs/${sourceRunId}/retry`);
+
+    expect(retryResponse.status).toBe(200);
+    expect(retryResponse.body.run.status).toBe("blocked");
+    expect(retryResponse.body.run.retriedFromRunId).toBe(sourceRunId);
+  });
+
+  it("rejects retry requests for active orchestration runs", async () => {
+    const app = createTestApp();
+    const delayedHealthServer = await createDelayedHealthServer();
+
+    try {
+      await request(app)
+        .post("/api/modules/register")
+        .send({
+          id: "retry-running-module",
+          name: "retry-running-module",
+          category: "platform",
+          baseUrl: "http://localhost:5451",
+          healthUrl: delayedHealthServer.healthUrl,
+          ownerTeam: "platform-core",
+          dependencies: [],
+          slo: {
+            availabilityPct: 99.9,
+            latencyP95Ms: 300,
+            errorRatePct: 0.5
+          }
+        })
+        .expect(201);
+
+      const executeResponse = await request(app)
+        .post("/api/orchestration/execute")
+        .send({
+          targets: ["retry-running-module"]
+        });
+
+      expect(executeResponse.status).toBe(202);
+      const runId = executeResponse.body.run.id;
+
+      const retryResponse = await request(app)
+        .post(`/api/orchestration/runs/${runId}/retry`);
+
+      expect(retryResponse.status).toBe(409);
+
+      await request(app)
+        .post(`/api/orchestration/runs/${runId}/cancel`);
+
+      await waitForRunCompletion(app, runId);
+    } finally {
+      await delayedHealthServer.close();
+    }
+  });
+
+  it("returns 404 for unknown orchestration run cancellations", async () => {
+    const app = createTestApp();
+
+    const response = await request(app).post("/api/orchestration/runs/unknown-run-id/cancel");
+    expect(response.status).toBe(404);
+    expect(String(response.body.error)).toContain("Unknown orchestration run id");
+  });
+
+  it("returns 404 for unknown orchestration run ids", async () => {
+    const app = createTestApp();
+
+    const response = await request(app).get("/api/orchestration/runs/unknown-run-id");
+    expect(response.status).toBe(404);
+    expect(String(response.body.error)).toContain("Unknown orchestration run id");
   });
 });
