@@ -35,6 +35,7 @@ Integration details are documented in `docs/INTEGRATION-MAP.md`.
 
 | Project | UI Screenshot |
 | --- | --- |
+| Astramesh | <img width="1919" height="842" alt="image" src="https://github.com/user-attachments/assets/edf0c2d5-7ada-46de-a347-4a68b318610b" /> |
 | drift-watch | ![drift-watch dashboard overview](https://raw.githubusercontent.com/Ramdragneel01/drift-watch/main/docs/assets/dashboard-overview.png) |
 | llm-judge | ![llm-judge dashboard overview](https://raw.githubusercontent.com/Ramdragneel01/llm-judge/main/docs/assets/dashboard-overview.png) |
 | ragbench | ![ragbench dashboard overview](https://raw.githubusercontent.com/Ramdragneel01/ragbench/main/docs/assets/dashboard-overview.png) |
