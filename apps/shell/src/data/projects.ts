@@ -27,7 +27,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_DRIFT_WATCH_URL, "http://localhost:5401"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_DRIFT_WATCH_URL, "http://localhost:5401"),
-    startCommand: "npm --prefix ..\\drift-watch\\frontend run dev -- --port 5401 --host",
+    startCommand: "Set-Location ..\\drift-watch\\frontend; npx vite --port 5401 --host",
     repoPath: "..\\drift-watch",
     statusNote: "Feature and concept drift control center",
     allowedRoles: [...OBSERVABILITY_ACCESS]
@@ -41,7 +41,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_LLM_JUDGE_URL, "http://localhost:5402"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_LLM_JUDGE_URL, "http://localhost:5402"),
-    startCommand: "npm --prefix ..\\llm-judge\\frontend run dev -- --port 5402 --host",
+    startCommand: "Set-Location ..\\llm-judge\\frontend; npx vite --port 5402 --host",
     repoPath: "..\\llm-judge",
     statusNote: "Judge runs, metrics, and leaderboard",
     allowedRoles: [...OBSERVABILITY_ACCESS]
@@ -55,7 +55,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_RAGBENCH_URL, "http://localhost:5403"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_RAGBENCH_URL, "http://localhost:5403"),
-    startCommand: "npm --prefix ..\\ragbench\\frontend run dev -- --port 5403 --host",
+    startCommand: "Set-Location ..\\ragbench\\frontend; npx vite --port 5403 --host",
     repoPath: "..\\ragbench",
     statusNote: "Retrieval and answer-quality benchmarking",
     allowedRoles: [...OBSERVABILITY_ACCESS]
@@ -69,7 +69,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_PROMPT_OPS_URL, "http://localhost:5404"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_PROMPT_OPS_URL, "http://localhost:5404"),
-    startCommand: "npm --prefix ..\\prompt-ops\\frontend run dev -- --port 5404 --host",
+    startCommand: "Set-Location ..\\prompt-ops\\frontend; npx vite --port 5404 --host",
     repoPath: "..\\prompt-ops",
     statusNote: "Versioning, experiments, promotion",
     allowedRoles: [...AGENTICS_ACCESS]
@@ -83,7 +83,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_NEURALSCOPE_URL, "http://localhost:5405"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_NEURALSCOPE_URL, "http://localhost:5405"),
-    startCommand: "npm --prefix ..\\neuralscope\\frontend run dev -- --port 5405 --host",
+    startCommand: "Set-Location ..\\neuralscope\\frontend; npx vite --port 5405 --host",
     repoPath: "..\\neuralscope",
     statusNote: "Detect dead neurons and activation drift",
     allowedRoles: [...OBSERVABILITY_ACCESS]
@@ -97,7 +97,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_CONFIG_FORGE_URL, "http://localhost:5406"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_CONFIG_FORGE_URL, "http://localhost:5406"),
-    startCommand: "npm --prefix ..\\config-forge\\frontend run dev -- --port 5406 --host",
+    startCommand: "Set-Location ..\\config-forge\\frontend; npx vite --port 5406 --host",
     repoPath: "..\\config-forge",
     statusNote: "Validate and promote serving configs",
     allowedRoles: [...PLATFORM_ACCESS]
@@ -111,7 +111,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_INTERVIEW_OS_URL, "http://localhost:5407"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_INTERVIEW_OS_URL, "http://localhost:5407"),
-    startCommand: "npm --prefix ..\\interview-os\\frontend run dev -- --port 5407 --host",
+    startCommand: "Set-Location ..\\interview-os\\frontend; npx vite --port 5407 --host",
     repoPath: "..\\interview-os",
     statusNote: "Structured kits, sessions, and hiring recs",
     allowedRoles: [...PLATFORM_ACCESS]
@@ -125,7 +125,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_MLOPS_SENTINEL_URL, "http://localhost:5408"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_MLOPS_SENTINEL_URL, "http://localhost:5408"),
-    startCommand: "npm --prefix ..\\mlops-sentinel\\frontend run dev -- --port 5408 --host",
+    startCommand: "Set-Location ..\\mlops-sentinel\\frontend; npx vite --port 5408 --host",
     repoPath: "..\\mlops-sentinel",
     statusNote: "Model and service reliability monitoring",
     allowedRoles: [...OBSERVABILITY_ACCESS]
@@ -139,7 +139,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_AGENT_TRACER_URL, "http://localhost:5409"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_AGENT_TRACER_URL, "http://localhost:5409"),
-    startCommand: "npm --prefix ..\\agent-tracer\\frontend run dev -- --port 5409 --host",
+    startCommand: "Set-Location ..\\agent-tracer\\frontend; npx vite --port 5409 --host",
     repoPath: "..\\agent-tracer",
     statusNote: "Timeline and flow introspection",
     allowedRoles: [...AGENTICS_ACCESS]
@@ -160,7 +160,7 @@ export const PROJECTS: ProjectIntegration[] = [
       "http://localhost:5410"
     ),
     startCommand:
-      "npm --prefix ..\\agentic-research-assistant\\frontend run dev -- --port 5410 --host",
+      "Set-Location ..\\agentic-research-assistant\\frontend; npx vite --port 5410 --host",
     repoPath: "..\\agentic-research-assistant",
     statusNote: "Search, summarize, critique, and assemble",
     allowedRoles: [...AGENTICS_ACCESS]
@@ -174,7 +174,7 @@ export const PROJECTS: ProjectIntegration[] = [
     launchMode: "iframe",
     url: resolveIntegrationUrl(import.meta.env.VITE_AGENTIC_UI_URL, "http://localhost:6006"),
     healthUrl: resolveIntegrationUrl(import.meta.env.VITE_AGENTIC_UI_URL, "http://localhost:6006"),
-    startCommand: "npm --prefix ..\\agentic-ui run storybook -- --port 6006",
+    startCommand: "Set-Location ..\\agentic-ui; npx storybook dev -p 6006",
     repoPath: "..\\agentic-ui",
     statusNote: "Agent interaction design system",
     allowedRoles: [...AGENTICS_ACCESS]

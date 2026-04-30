@@ -29,6 +29,55 @@ AstraMesh is evolving into an AI runtime control plane, not just a frontend laun
 
 Integration details are documented in `docs/INTEGRATION-MAP.md`.
 
+## UI Screenshots By Project
+
+### Observability
+
+| Project | UI Screenshot |
+| --- | --- |
+| drift-watch | ![drift-watch dashboard overview](https://raw.githubusercontent.com/Ramdragneel01/drift-watch/main/docs/assets/dashboard-overview.png) |
+| llm-judge | ![llm-judge dashboard overview](https://raw.githubusercontent.com/Ramdragneel01/llm-judge/main/docs/assets/dashboard-overview.png) |
+| ragbench | ![ragbench dashboard overview](https://raw.githubusercontent.com/Ramdragneel01/ragbench/main/docs/assets/dashboard-overview.png) |
+| neuralscope | ![neuralscope dashboard](https://raw.githubusercontent.com/Ramdragneel01/neuralscope/main/docs/assets/neuralscope-dashboard.png) |
+| mlops-sentinel | UI screenshot pending in project README (`## Visual Evidence`). |
+
+### Agentics
+
+| Project | UI Screenshot |
+| --- | --- |
+| prompt-ops | ![prompt-ops dashboard overview](https://raw.githubusercontent.com/Ramdragneel01/prompt-ops/main/docs/assets/dashboard-overview.png) |
+| agent-tracer | UI screenshot pending in project README. |
+| agentic-research-assistant | UI screenshot pending in project README. |
+| agentic-ui | ![agentic-ui storybook preview](https://raw.githubusercontent.com/Ramdragneel01/agentic-ui/main/docs/assets/storybook-preview.png) |
+
+### Platform
+
+| Project | UI Screenshot |
+| --- | --- |
+| config-forge | ![config-forge dashboard](https://raw.githubusercontent.com/Ramdragneel01/config-forge/main/docs/assets/config-forge-dashboard.png) |
+| interview-os | ![interview-os dashboard](https://raw.githubusercontent.com/Ramdragneel01/interview-os/main/docs/assets/interview-os-dashboard.png) |
+| context-watchdog | External docs/runtime integration. UI screenshot pending in project README. |
+
+## Repository Tags And README Subheadings
+
+| Project | Tags | README subheadings |
+| --- | --- | --- |
+| drift-watch | `observability`, `ml-monitoring`, `drift-detection` | Present (`## UI Preview`, `## Core Capabilities`, `## Quick Start`) |
+| llm-judge | `observability`, `llm-evaluation`, `quality-scoring` | Present (`## UI Preview`, `## What It Does`, `## Quick Start`) |
+| ragbench | `observability`, `rag-evaluation`, `benchmarking` | Present (`## UI Preview`, `## Stack`, `## Quick Start`) |
+| prompt-ops | `agentics`, `prompt-lifecycle`, `governance` | Present (`## UI Preview`, `## Stack`, `## Quick Start`) |
+| neuralscope | `observability`, `model-debugging`, `activation-analysis` | Present (`## Dashboard Screenshot`, `## Stack`, `## Quick Start`) |
+| config-forge | `platform`, `config-governance`, `release-controls` | Present (`## Dashboard Screenshot`, `## Stack`, `## Quick Start`) |
+| interview-os | `platform`, `workflow-orchestration`, `hiring-ops` | Present (`## Dashboard Screenshot`, `## Stack`, `## Quick Start`) |
+| mlops-sentinel | `observability`, `telemetry`, `latency-monitoring` | Present (`## Visual Evidence`, `## Architecture Snapshot`, `## Quick Start`) |
+| agent-tracer | `agentics`, `trace-visualization`, `execution-debugging` | Present (`## Features`, `## Project Layout`, `## Quick Start`) |
+| agentic-research-assistant | `agentics`, `research-orchestration`, `multi-agent` | Present (`## Implemented Scope`, `## Repository Layout`, `## Quick Start`) |
+| agentic-ui | `agentics`, `component-library`, `storybook` | Present (`## UI Preview`, `## Core Components`, `## Install`) |
+| context-watchdog | `platform`, `policy-enforcement`, `runtime-guardrails` | Present (`## What It Does`, `## Architecture Snapshot`, `## Quick Start`) |
+
+If you want direct image coverage for pending projects, add screenshot assets in those source
+repos (for example: `docs/assets/dashboard-overview.png`) and update the links above.
+
 ## Monorepo layout
 
 ```text

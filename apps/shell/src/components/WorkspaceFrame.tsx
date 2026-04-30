@@ -61,7 +61,7 @@ async function checkReachability(targetUrl: string): Promise<HealthState> {
 
     if (!response.ok) {
       if (response.status === 400 || response.status === 403) {
-        return "offline";
+        return "unknown";
       }
 
       return checkReachabilityDirect(targetUrl);
@@ -86,6 +86,7 @@ async function checkReachability(targetUrl: string): Promise<HealthState> {
 export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
   const [health, setHealth] = useState<HealthState>("checking");
   const [lastCheckedAt, setLastCheckedAt] = useState<string | null>(null);
+  const isExternalProject = project.launchMode === "external";
 
   const safeUrl = useMemo(() => normalizeProjectUrl(project.url), [project.url]);
   const safeHealthUrl = useMemo(
@@ -94,6 +95,12 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
   );
 
   const refreshHealth = useCallback(async () => {
+    if (isExternalProject) {
+      setHealth("online");
+      setLastCheckedAt(new Date().toISOString());
+      return;
+    }
+
     if (!project.healthUrl) {
       setHealth("unknown");
       setLastCheckedAt(new Date().toISOString());
@@ -110,7 +117,7 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
     const nextHealth = await checkReachability(safeHealthUrl);
     setHealth(nextHealth);
     setLastCheckedAt(new Date().toISOString());
-  }, [project.healthUrl, safeHealthUrl]);
+  }, [isExternalProject, project.healthUrl, safeHealthUrl]);
 
   useEffect(() => {
     let isMounted = true;
@@ -139,7 +146,7 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
     );
   }
 
-  const healthClass = `health-pill health-${health}`;
+  const healthClass = isExternalProject ? "health-pill health-online" : `health-pill health-${health}`;
 
   return (
     <section className="workspace-panel" aria-labelledby="workspace-title">
@@ -149,10 +156,13 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
           <p>{project.tagline}</p>
         </div>
         <div className="workspace-actions">
-          <span className={healthClass}>{health}</span>
-          <button type="button" onClick={() => void refreshHealth()}>
-            Retry health check
-          </button>
+          {isExternalProject ? <span className={healthClass}>external</span> : null}
+          {!isExternalProject ? <span className={healthClass}>{health}</span> : null}
+          {!isExternalProject ? (
+            <button type="button" onClick={() => void refreshHealth()}>
+              Retry health check
+            </button>
+          ) : null}
           <a href={safeUrl} target="_blank" rel="noreferrer">
             Open in new tab
           </a>
@@ -199,14 +209,14 @@ export function WorkspaceFrame({ project }: WorkspaceFrameProps) {
         />
       )}
 
-      {health === "offline" ? (
+      {health === "offline" && !isExternalProject ? (
         <p className="offline-hint" role="status">
           Module appears offline. The backend or frontend service may be down. Start it with the
           command shown above, then refresh this route.
         </p>
       ) : null}
 
-      {health === "unknown" ? (
+      {health === "unknown" && !isExternalProject ? (
         <p className="offline-hint" role="status">
           Health could not be verified. Ensure the control-plane backend is running and CORS
           allowlist includes the shell origin.
